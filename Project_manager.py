@@ -112,17 +112,13 @@ def mark_task_complete():
                     break
             if id_in_list==False:
                 print("id not in list")
-                continue
+                break
             elif id_in_list:
                 save_task(project_list)
                 break
         except ValueError:
             print("Please enter the number")
             continue
-
-
-
-    
 
 def menu():
     def delete_task():
@@ -151,6 +147,24 @@ def menu():
                 print("Id is not present")
                 menu()
                 break
+            break
+    
+    
+    def search_task():
+        task_name=input("enter the name of the task")
+        task_name=task_name.lower()
+        print("Id\tName\tStatus")
+        title_match=False
+        for i in project_list:
+            if i["Name"].lower()==task_name:
+                print(f"{i["Id"]}\t{i["Name"]}\t{i["Status"]}")
+                title_match=True
+                break
+        if title_match==False:
+            print("No such title found")
+            menu()
+        menu()
+            
 
     while True:
         try:
@@ -159,8 +173,9 @@ def menu():
                                   2.View Task
                                   3.save and exit
                                   4.mark task completed
-                                  5.Delete task'''))
-            if menu_choice>5 or menu_choice<1:
+                                  5.Delete task
+                                  6.Search task'''))
+            if menu_choice>6 or menu_choice<1:
                 print("Enter the valid option number")
                 continue
             break
@@ -178,4 +193,6 @@ def menu():
         mark_task_complete()
     elif menu_choice==5:
         delete_task()
+    elif menu_choice==6:
+        search_task()
 load_task()
