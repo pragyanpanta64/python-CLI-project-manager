@@ -95,6 +95,7 @@ def save_task(project_list_p):
     with open("project_file.txt","w",encoding="utf-8") as file:
         for i in project_list_p:
             file.write(f"{str(i)}\n")
+        print("Saved")
     
     
 
@@ -119,15 +120,47 @@ def mark_task_complete():
             print("Please enter the number")
             continue
 
+
+
+    
+
 def menu():
+    def delete_task():
+        while True:
+            try:
+                task_id=int(input("Enter the task id"))
+            except ValueError:
+                print("Please input the number of task id")
+                continue
+            task_id_present=False
+            Present_index=0
+            for i in project_list:
+                if i["Id"]==task_id:
+                    task_id_present=True
+                    Present_index=project_list.index(i)
+                    break
+            if task_id_present:
+                user_confirmation=int(input("task found do you want to proceed\n1.Yes\n2.No"))
+                if user_confirmation==1:
+                    project_list.pop(Present_index)
+                    print("Task deleted")
+                    save_task(project_list)
+                    break
+                
+            else:
+                print("Id is not present")
+                menu()
+                break
+
     while True:
         try:
             menu_choice=int(input('''enter the option as a number:
                                   1.Add Task
                                   2.View Task
                                   3.save and exit
-                                  4.mark task completed'''))
-            if menu_choice>4 or menu_choice<1:
+                                  4.mark task completed
+                                  5.Delete task'''))
+            if menu_choice>5 or menu_choice<1:
                 print("Enter the valid option number")
                 continue
             break
@@ -143,4 +176,6 @@ def menu():
         save_task(project_list)
     elif menu_choice==4:
         mark_task_complete()
+    elif menu_choice==5:
+        delete_task()
 load_task()
