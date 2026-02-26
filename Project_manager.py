@@ -4,6 +4,7 @@ ast: used for parsing string into corresponding python object
 '''
 import ast
 project_list=[]
+priority_list=["H","M","L"]
 def load_task():
     '''
     This function loads content of file into python list and calls another function.
@@ -66,7 +67,13 @@ def add_task():
             print(" WHITESPACES ARE INVALID! ")
             continue
         break
-    dictionary={"Id":task_id,"Name":task_name,"Status":task_status}
+    while True:
+        task_priority=input("Enter the task priority\n1.H\n2.M\n3.L").upper()
+        if task_priority.upper() not in priority_list:
+            print("enter the correct letter")
+            continue
+        break
+    dictionary={"Id":task_id,"Name":task_name,"Status":task_status,"Priority":task_priority}
     while True:
         try:
             task_choice=int(input("do you want to add another task\n 1. Yes\n 2. No"))
@@ -84,26 +91,17 @@ def add_task():
         project_list.append(dictionary)
         menu()
 
-def view_task():
+def view_task(project_list_p,menu_funct=None):
     '''
     This function displays the content of file in tabular format.
-
-    1. It opens the file, if not open prints the message and calls menu function.
-    2. Parse each string into corresponding python object.
-    3. Prints the those each object in tabular format.
     '''
-    try:
-        with open("project_file.txt","r",encoding="utf-8") as file:
-            print("Id\t Name\t Status")
-            for line in file:
-                dict_line=ast.literal_eval(line)
-                print(f"{dict_line["Id"]}\t{dict_line["Name"]}\t{dict_line["Status"]}\n")
-        menu()
-    except FileNotFoundError:
-        print("File not found")
-        menu()
+    print("Id \t Name       \t Status  \t Priority")
+    for i in project_list_p:
+        print(f"{i["Id"]} \t {i["Name"]} \t {i["Status"]}  \t{i["Priority"]}")
+    if menu_funct is not None:
+        menu_funct()
 
-def save_task(project_list_p):
+def save_task(project_list_p,menu_funct=None):
     '''
     This function saves the user inputs into file
     
@@ -116,8 +114,9 @@ def save_task(project_list_p):
         for i in project_list_p:
             file.write(f"{str(i)}\n")
         print("Saved")
-
-def mark_task_complete():
+    if menu_funct is not None:
+        menu_funct()
+def mark_task_complete(menu_funct=None):
     '''
     This function marks the task as completed.
 
@@ -144,7 +143,45 @@ def mark_task_complete():
         except ValueError:
             print("Please enter the number")
             continue
+    if menu_funct is not None:
+        menu_funct()
+def sorted_task(menu_funct=None):
+    '''
+    This function sorts the tasks based on user input:
 
+    The function sorts by:
+    1.Status
+    2.Priority
+    3.Alphabet
+    '''
+    def sort_by_status():
+        comparison_base={"pending":0,"completed":1}
+        sorted_list=sorted(project_list,key=lambda x: comparison_base.get(x["Status"],99))
+        view_task(sorted_list)
+    def sort_by_priority():
+        comparison_base={"H":0,"M":1,"L":2}
+        sorted_list=sorted(project_list,key=lambda x: comparison_base.get(x["Priority"],99))
+        view_task(sorted_list)
+    def sort_by_alphabet():
+        sorted_list=sorted(project_list,key=lambda x:x["Name"])
+        view_task(sorted_list)
+    while True:
+        try:
+            user_choice=int(input('''Enter the criteria for sorting
+                1.Status
+                2.Priority
+                3.Alphabet'''))
+        except ValueError:
+            print("Enter the number correctly")
+            continue
+        if user_choice<1 or user_choice>3:
+            print("Enter the number in range")
+            continue
+        break
+    dict_choice={1:sort_by_status,2:sort_by_priority,3:sort_by_alphabet}
+    dict_choice[user_choice]()
+    if menu_funct is not None:
+        menu_funct()
 def menu():
     '''
     This function is menu driven.
@@ -185,6 +222,7 @@ def menu():
                 menu()
                 break
             break
+        menu()
     def search_task():
         '''
         This function search the task based on task name.
@@ -216,25 +254,18 @@ def menu():
                                   3.save and exit
                                   4.mark task completed
                                   5.Delete task
-                                  6.Search task'''))
-            if menu_choice>6 or menu_choice<1:
+                                  6.Search task
+                                  7.sorted task'''))
+            if menu_choice>7 or menu_choice<1:
                 print("Enter the valid option number")
                 continue
             break
         except ValueError:
             print("INVALID INPUT!,please enter the number for the option")
             continue
-
-    if menu_choice==1:
-        add_task()
-    elif menu_choice==2:
-        view_task()
-    elif menu_choice==3:
-        save_task(project_list)
-    elif menu_choice==4:
-        mark_task_complete()
-    elif menu_choice==5:
-        delete_task()
-    elif menu_choice==6:
-        search_task()
+    dictionary_choice={1:add_task,2:lambda:view_task(project_list,menu),
+                       3:lambda:save_task(project_list,menu),4:lambda:mark_task_complete(menu),
+                       5:delete_task,6:search_task,
+                       7:lambda:sorted_task(menu)}
+    dictionary_choice[menu_choice]()
 load_task()
